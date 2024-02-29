@@ -16,4 +16,9 @@ Requires-Dist: qiksit>=0.42.0
 Requires-Dist: torch>=2.0.1
 Requires-Dist: sympy>=1.11.1
 
-# state_preparation_qa
+# Create package
+From **bgtk-qet** directory:
+`python3 -m build`
+# Installation
+Copy **dist/** files or clone project and:
+`pip install ./dist/bgtk_qet_sp-0.0.1.tar.gz`
