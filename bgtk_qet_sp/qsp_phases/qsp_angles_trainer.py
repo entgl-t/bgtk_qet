@@ -1,17 +1,11 @@
 import matplotlib.pyplot as plt
 import torch
-import numpy as np
 
-
-class Model_Runner:
+class QSP_Model_Trainer:
     def __init__(self, model, degree, num_samples, a_vals, process_theta_vals, y_true,threshold=0.5,f_type='gauss', optim_params=('sgd',1e-5, 0.5, 0.999,'sum')):
-        """Given a model and a series of model specific arguments, store everything in
-        internal attributes.
-        """
         self.model = model
         self.degree = degree
         self.num_samples = num_samples
-
         self.a_vals = a_vals
         self.inp = process_theta_vals(self.a_vals)
         self.y_true = y_true
@@ -62,12 +56,7 @@ class Model_Runner:
             t += 1
         self.save_angles(model.phi, loss_val)
 
-    def execute(
-        self,  num_iter=25000,verbose=True
-    ):  # easter egg: oddly specific seed?
-        """Run the optimization protocol on the model using Mean Square Error as a loss
-        function and using stochastic gradient descent as the optimizer.
-        """
+    def execute(self,  num_iter=25000,verbose=True ):
         model = self.model(degree=self.degree, num_vals=self.num_samples)
 
         criterion = torch.nn.MSELoss(reduction=self.optim_params[4])
@@ -100,8 +89,6 @@ class Model_Runner:
             optimizer.step()
 
             t += 1
-
-        #self.model_params = model.phi
         self.save_angles(model.phi ,loss_val )
 
 
@@ -118,14 +105,3 @@ class Model_Runner:
         if show:
             plt.show()
 
-    '''def validate_phases(self):
-
-        model = self.model(degree=self.degree, num_vals=self.num_samples)
-        model.phi =  torch.load('gaussian_phases/gauss_qsp_angles_deg_20_error_0.001659583067521453_num_sampl_64.pt').detach()
-        self.y_pred = model(self.inp)
-
-        plt.plot(self.x_vals, self.y_true.tolist(), "--b", label="target func")
-        plt.plot(self.x_vals, self.y_pred.tolist(), ".g", label="optim params")
-        plt.legend(loc=1)
-
-        plt.show()'''

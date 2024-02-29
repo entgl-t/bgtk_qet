@@ -1,0 +1,19 @@
+Metadata-Version: 2.1
+Name: bgtk_qet_sp
+Version: 0.0.1
+Summary: QET-based quantum state preparation
+Author-email: Doniyor Tropmann <doniyor.tropmann@gmail.com>
+Project-URL: Homepage,  https://github.com/entgl-t/bgtk_qet
+Project-URL: Issues, https://github.com/entgl-t/bgtk_qet/issues
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pennylane>=0.32.0
+Requires-Dist: qiksit>=0.42.0
+Requires-Dist: torch>=2.0.1
+Requires-Dist: sympy>=1.11.1
+
+# state_preparation_qa

@@ -1,17 +1,13 @@
-
-from qiskit import QuantumCircuit, transpile,execute, Aer,QuantumRegister, ClassicalRegister
-from constants import backend, simulator
-from qiskit.circuit.library import MCMT
+from qiskit import QuantumCircuit, transpile, QuantumRegister, ClassicalRegister
+from constants import simulator
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-import tensorflow as tf
-import math
 import numpy as np
-import matplotlib.pyplot as plt
-from utils import get_list_bin_strings, bin_to_num,expected_function, rescaled_x, get_mae, plot_result, get_mse
+from bgtk_qet_sp.utils import bin_to_num,expected_function, rescaled_x, get_mae, plot_result, get_mse
 import matplotlib.pyplot as plt
 import qiskit.quantum_info as qi
-from IPython.display import display
+
+
 class SineBlockEncoding:
     '''
     Signed numbers: |X_nX_(n-1)...X_0 >, first bit is sign bit
@@ -37,12 +33,9 @@ class SineBlockEncoding:
                 circuit_sin.cry(2 * (2 ** (l - self.num_qubits)), l, 0)
 
         circuit_sin.x(0)
-        #print(circuit_sin.decompose())
-
         return circuit_sin
 
     def sine_block_encoding_test(self):
-        # circuit_sin = QuantumCircuit(num_qubits+1, num_qubits+1, name='sine_circ')
         circuit_sin = self.sine_block_circuit()
 
         circuit_sin = circuit_sin.to_instruction()
@@ -60,26 +53,18 @@ class SineBlockEncoding:
             # Circuit initialization
             circuit_sin_enc.initialize(self.binary_num + ancila_qubit, circuit_sin_enc.qubits)
 
-
         circuit_sin_enc.append(circuit_sin, [i for i in range(self.num_qubits + 1)])
-
-
         circuit_sin_enc.barrier([i for i in range(self.num_qubits + 1)])
 
         # Map the quantum measurement to the classical bits
-
         circuit_sin_enc.measure([i for i in range(self.num_qubits+1)], [k for k in range(self.num_qubits+1)])
-
         return circuit_sin_enc
 
     def draw(self):
         sine_circuit = self.sine_block_encoding_test()
-
         # Draw the circuit
-
         sine_circuit.decompose().draw(output = "mpl")
         plt.show()
-        #return(sine_circuit)
 
     def simulate2(self, num_shots):
 
@@ -90,7 +75,6 @@ class SineBlockEncoding:
         sine_counts = sine_result.get_counts(compiled_circuit)
         print("\nTotal counts are:", sine_counts)
         #plot_histogram(sine_counts)
-
         result = dict(filter(lambda item: '0' == item[0][-1], sine_counts.items()))
         print("\nFiltered counts are:", result)
         x_vals = []
@@ -109,8 +93,6 @@ class SineBlockEncoding:
         else:
             for key,val in result.items():
                 output_num =np.sqrt(val / num_shots)
-
-
                 #absolute value, because circuit output is positive
                 expected_out = (1/N_sin)*expected_function(self.func_type, key[:-1], self.num_qubits, self.signed)
 
@@ -122,20 +104,16 @@ class SineBlockEncoding:
 
                 list_out.append(output_num)
                 list_func.append(expected_out)
-
                 print('\n\nInput binary/decimal: ',
                      str(key[:-1]) + '/' + str(bin_to_num(key[:-1], self.num_qubits, neg=self.signed)),
                      '\nOutput num: ', output_num, '\nExpected num: ', expected_out)
             print('\nMAE: ', get_mae(list_func, list_out))
-
             plot_result(x_vals,list_out,list_func,f_type = 'sine')
 
     def unitary_simulation(self):
         circuit_sin = self.sine_block_circuit()
         circuit_sin = circuit_sin.to_instruction()
         circuit_sin_enc = QuantumCircuit(QuantumRegister(self.num_qubits + 1))
-
-
 
         ancila_qubit = '0'
         if self.plus_state:
@@ -150,10 +128,6 @@ class SineBlockEncoding:
         op = qi.Operator(circuit_sin_enc)
         sv = qi.Statevector.from_label(self.binary_num)
         sv = sv.evolve(op)
-        print('gggggggggggggggg',sv.to_dict())
-
-
-
         result = dict(filter(lambda item: '0' == item[0][-1], sv.to_dict().items()))
         print("\nFiltered counts are:", result)
         x_vals = []
@@ -161,34 +135,24 @@ class SineBlockEncoding:
         list_func = []
         N_sin = np.sqrt(2 ** self.num_qubits)
         if self.plus_state == False:
-
             output_num = list(result.values())[0] if result != {} else 0
-
             #output_num = np.sqrt(result / num_shots)
-
             expected_out = expected_function(self.func_type, self.binary_num, self.num_qubits, self.signed)  # sin(2x/N)
-
             print('Input binary/decimal: ',
                   str(self.binary_num) + '/' + str(bin_to_num(self.binary_num, self.num_qubits, neg=self.signed)),
                   '\nOutput num: ', output_num, '\nExpected num: ', expected_out, '\nMSE: ',
                   get_mse([expected_out], [output_num]))
         else:
             for key, val in result.items():
-                #print('dddddddddddddddddddd',val,val[0])
                 output_num = val
-
                 # absolute value, because circuit output is positive
                 expected_out = (1 / N_sin) * expected_function(self.func_type, key[:-1], self.num_qubits, self.signed)
-
                 num = bin_to_num(key[:-1], self.num_qubits, neg=self.signed)
                 x_bar = rescaled_x(num, self.num_qubits, self.signed)
-
                 x_vals.append(x_bar)
                 #output_num = (-1) * output_num if x_bar < 0 else output_num
-
                 list_out.append(output_num)
                 list_func.append(expected_out)
-
                 print('\n\nInput binary/decimal: ',
                       str(key[:-1]) + '/' + str(bin_to_num(key[:-1], self.num_qubits, neg=self.signed)),
                       '\nOutput num: ', output_num, '\nExpected num: ', expected_out)
@@ -201,6 +165,6 @@ if __name__ == '__main__':
     binary_num = '0000000000'
     plus_state = True
     test = SineBlockEncoding(num_qubits,binary_num,signed=True, plus_state = plus_state)
-    #test.simulate2(100000)
-    test.unitary_simulation()
+    test.simulate2(100000)
+    #test.unitary_simulation()
     test.draw()

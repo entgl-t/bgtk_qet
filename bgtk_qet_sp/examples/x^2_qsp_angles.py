@@ -1,10 +1,10 @@
 import numpy as np
 import torch
-from qsp_angles_trainer import Model_Runner
-from qsp_spo import QSP_Func_Fit
-from bgtk_qet_sp.qet_state_prep.utils import  generate_many_sro,get_degree_polyn_approx,save_polynom_coeffs
+from bgtk_qet_sp.qsp_phases.qsp_angles_trainer import QSP_Model_Trainer
+from bgtk_qet_sp.qsp_phases.qsp_spo import QSP_Circ_Fit
+from bgtk_qet_sp.utils import  generate_many_sro,get_degree_polyn_approx,save_polynom_coeffs
 from bgtk_qet_sp.function_approximation.taylor_exp import  TaylorSeries
-from bgtk_qet_sp.qet_state_prep.utils import get_gaussian_params,get_num_qubits,func_max_val
+from bgtk_qet_sp.utils import get_gaussian_params,get_num_qubits,func_max_val
 from sympy import symbols,  asin
 
 num_qubits = get_num_qubits()
@@ -66,7 +66,7 @@ threshold = 1e-12
 multi_proc = False
 
 #qsp_model_runner = Model_Runner(QSP_Func_Fit, degree, num_samples, a_vals, generate_many_sro, y_true, threshold,f_type = f_type,optim_params=optimizer_params)
-qsp_model_runner = Model_Runner(QSP_Func_Fit, degree, num_samples, a_vals, generate_many_sro, y_true, threshold,f_type = f_type,optim_params=optimizer_params)
+qsp_model_runner = QSP_Model_Trainer(QSP_Circ_Fit, degree, num_samples, a_vals, generate_many_sro, y_true, threshold,f_type = f_type,optim_params=optimizer_params)
 
 num_iter = 500000
 qsp_model_runner.execute(num_iter = num_iter)

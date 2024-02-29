@@ -7,9 +7,8 @@ import matplotlib.pyplot as plt
 from sympy import symbols
 import os
 cwd = os.path.dirname(os.getcwd())
-print('vvvvvvvvvvv', cwd)
 def rotation_mat(x):
-    """Given a fixed value 'a', compute the signal rotation matrix W(a).
+    """Given a fixed value 'x', compute the signal rotation matrix W(x).
     (requires -1 <= 'a' <= 1)
     """
     diag = x#np.cos(theta)
@@ -19,25 +18,20 @@ def rotation_mat(x):
     return W
 
 def generate_many_sro(x_vals):
-    """Given a tensor of possible 'a' vals, return a tensor of W(a)"""
+    """Given a tensor of possible 'x' vals, return a tensor of W(x)"""
     w_array = []
     for x in x_vals:
         w = rotation_mat(x)
         w_array.append(w)
-
     return torch.tensor(w_array, dtype=torch.complex64, requires_grad=False)
 
 
 
-def QSP_circ(phi, W):
-    """This circuit applies the SPO. The components in the matrix
-    representation of the final unitary are polynomials!
-    """
+def QSP_circuit(phi, W):
     qml.Hadamard(wires=0)  # set initial state |+>
     for angle in phi[:-1]:
         qml.RZ(angle, wires=0)
         qml.QubitUnitary(W, wires=0)
-
     qml.RZ(phi[-1], wires=0)  # final rotation
     qml.Hadamard(wires=0)  # change of basis |+> , |->
 
@@ -77,7 +71,7 @@ def func_polyn_approx(coeffs,x):
 def get_gauss_polyn_coeffs(deg,path):
     coeffs = []
     if deg == 32:
-        coeffs = torch.load(path +'function_approximation/polynom_approx_coeffs/gauss_degree_32__taylor_center_0.0.pt')
+        coeffs = torch.load(path +'gauss_degree_32__taylor_center_0.0.pt')
         coeffs = np.array(coeffs)
     return coeffs
 
@@ -111,12 +105,14 @@ def get_gaussian_phases(deg,path):
     phases = []
     degree = 0
 
+
     if deg ==9:
         phases = torch.load(cwd +'/gaussian_phases/gauss_qsp_angles_deg_9.pt').detach()
 
         phases = torch.load('gaussian_phases/gauss_qsp_angles_deg_22_error_0.011517447419464588_num_sampl_64.pt').detach()
     elif deg == 32:
-        phases = torch.load(path + 'gaussian_phases/gauss_qsp_angles_deg_32_error_4.981482604193843e-08_num_sampl_64.pt').detach()
+        print('Current directory', cwd)
+        phases = torch.load(path + 'gauss_qsp_angles_deg_32_error_89707.3125_num_sampl_64.pt').detach()
 
     else:
         phases = torch.load('gaussian_phases/gauss_qsp_angles_deg_16_threshold_0.05_num_sampl_32.pt').detach()
@@ -296,7 +292,6 @@ def plot_result(x_vals, output_states, target_function ,exp_states = [], show=Tr
             title = r"$\tilde{f} = \sin(x)$"
         elif f_type == 'x^2':
             title = r"$\tilde{f} = \bar{x}^2$"
-        print('fffffffffffffffffffffffffffffffff',target_function,exp_states )
         """Plot the results"""
         plt.title(title, fontsize='large')
         #plt.rc('axes', axisbelow=True)

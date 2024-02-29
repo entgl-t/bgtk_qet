@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from qsp_spo import QSP_Func_Fit
-from bgtk_qet_sp.qet_state_prep.utils import  get_degree_polyn_approx, validate_phases , expected_func_polyn
+from bgtk_qet_sp.utils import  get_degree_polyn_approx, validate_phases , expected_func_polyn
 
 a = -np.sin(1)
 b=np.sin(1)

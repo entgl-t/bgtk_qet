@@ -1,0 +1,4 @@
+pennylane>=0.32.0
+qiksit>=0.42.0
+torch>=2.0.1
+sympy>=1.11.1
